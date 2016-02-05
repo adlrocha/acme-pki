@@ -1,4 +1,7 @@
 #/bin/bash
+# ACME PRIVATE PKI
+# The directories architectures and cnf files should already be
+# configured from the beginning
 
 create-ca-certificate(){
 	cd ca
@@ -11,12 +14,40 @@ create-ca-certificate(){
 	cd ..
 }
 
+
+create-server-certificate(){
+	mkdir server
+	cp ca/ca.crt server
+	cd server 
+	#Generate prime numbers
+	openssl dhparam -out dh2048.pem 2048
+	#Create server request certificate
+	openssl req -new -config ../server.cnf -keyout server.key -out server.req
+	chmod 400 server.key
+	cd ..
+}
+
+sign-server-certificate(){
+	#XXX Secure communication of the request from server to CA
+	#(in case we want the key to be generated in the server machine and not by
+	#the CA)
+	cp server/server.req ca/
+	cd ca
+	openssl ca -config ca-sign.cnf -extensions X509_server -in server.req -out server.crt
+	cd ..
+	cp ca/server.crt server/
+	# XXX send the certificates and key to the server
+	# Pending...
+}
+
 help() {
 echo "-------------------"
 echo "ACME PRIVATE PKI"
 echo "-------------------"
 echo "COMMANDS"
 echo "[] create-ca-certificate"
+echo "[] create-server-certificate"
+echo "[] sign-server-certificate [server-IP]"
 echo "[] install-client [client-id] [client-ssh-credentials]"
 echo "[] revoke-cert [client-id]"
 echo "[] push-crl" 
