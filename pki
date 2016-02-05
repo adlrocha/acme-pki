@@ -4,6 +4,7 @@
 # configured from the beginning
 
 create-ca-certificate(){
+        echo "[] Creating CA certificate"
 	cd ca
 	touch index.txt
 	openssl req -new -config ca.cnf -keyout ca.key -out ca.req
@@ -16,6 +17,7 @@ create-ca-certificate(){
 
 
 create-server-certificate(){
+        echo "[] Creating server certificate"
 	mkdir server
 	cp ca/ca.crt server
 	cd server 
@@ -28,16 +30,71 @@ create-server-certificate(){
 }
 
 sign-server-certificate(){
+        echo "[] Signing server certificate"
 	#XXX Secure communication of the request from server to CA
 	#(in case we want the key to be generated in the server machine and not by
 	#the CA)
 	cp server/server.req ca/
 	cd ca
+	#We can use --passin passphrase.txt if we don't want to introduce everytime CA's pass
 	openssl ca -config ca-sign.cnf -extensions X509_server -in server.req -out server.crt
 	cd ..
+	rm ca/server.req
+	rm server/server.req
 	cp ca/server.crt server/
 	# XXX send the certificates and key to the server
+	echo "[] Encrypting information"
+        echo "[] Installing certificates in server"
 	# Pending...
+}
+
+create-client-certificate(){
+        echo "[] Creating client certificate"
+	mkdir $1
+	cp ca/ca.crt $1/
+        sed "s/{{client_id}}/$1/g" client.cnf > $1/$1.cnf
+        cd $1
+        openssl req -new -config $1.cnf -keyout $1.key -out $1.req
+        chmod 400 $1.key
+        cd ..
+
+}
+
+sign-client-certificate(){
+        cp $1/$1.req ca/
+        cd ca/
+	#We can use --passin passphrase.txt if we don't want to introduce everytime CA's pass
+        openssl ca -config ca-sign.cnf -out $1.crt -in $1.req
+        cd ..
+        rm ca/$1.req
+        rm $1/$1.req
+        cp ca/$1.crt $1/
+	# XXX send the certificates and key to the server
+	echo "[] Encrypting information"
+        echo "[] Installing certificates in server"
+	# Pending...
+}
+
+#XXX Pending
+revoke-cert(){
+        echo "[] Revoking certificate ..."
+        cd ca
+        openssl -config ca-sign.cnf -crl_reason keyCompromise -revoke $1
+.crt
+        openssl ca -config ca-sign.cnf -gencrl -out crl.pem
+        #Remove revoked certificates from CA folder
+        rm ca/$1.crt ca/$1.req
+        cd ..
+}
+
+#XXX Pending
+push-crl(){
+	#Send CRL to client and install it
+}
+
+#XXX Pending
+install-cert(){
+	#Decrypt and copy certificates to directory
 }
 
 help() {
@@ -47,9 +104,11 @@ echo "-------------------"
 echo "COMMANDS"
 echo "[] create-ca-certificate"
 echo "[] create-server-certificate"
+echo "[] create-client-certificate [client-id]"
 echo "[] sign-server-certificate [server-IP]"
-echo "[] install-client [client-id] [client-ssh-credentials]"
+echo "[] sign-client-certificate [client-id client-IP]"
 echo "[] revoke-cert [client-id]"
+echo "[] install-cert [directory]"
 echo "[] push-crl" 
 echo "[] new-ca-pass" 
 
