@@ -44,6 +44,7 @@ sign-server-certificate(){
 	cp ca/server.crt server/
 	# XXX send the certificates and key to the server
 	echo "[] Encrypting information"
+	#See gpg encryption
         echo "[] Installing certificates in server"
 	# Pending...
 }
