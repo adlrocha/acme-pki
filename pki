@@ -2,6 +2,7 @@
 
 create-ca-certificate(){
 	cd ca
+	touch index.txt
 	openssl req -new -config ca.cnf -keyout ca.key -out ca.req
 	openssl ca -config ca-sign.cnf -extensions X509_ca -days 3650 -create_serial -selfsign \
     -keyfile ca.key -in ca.req -out ca.crt

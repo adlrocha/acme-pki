@@ -1,0 +1,7 @@
+*.key
+*.crt
+*.req
+*.pem
+*.txt
+*.txt.*
+ca/serial

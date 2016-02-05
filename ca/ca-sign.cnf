@@ -4,7 +4,7 @@
 default_ca              = CA_default            # The default ca section
 
 [ CA_default ]
-dir                     = /path/to/ca           # Where everything is kept
+dir                     = ./           # Where everything is kept
 certs                   = $dir/                 # Where the issued certs are kept
 crl_dir                 = $dir/                 # Where the issued crl are kept
 new_certs_dir           = $dir/                 # default place for new certs
@@ -18,7 +18,7 @@ crl                     = $dir/crl.pem          # The current CRL
 RANDFILE                = $dir/.rand            # private random number file
 
 unique_subject          = no                    # allow multiple certificates with same subject.
-default_md              = sha2                  # Use hash algorithm specified in the request
+default_md              = sha256                  # Use hash algorithm specified in the request
 default_days            = 730                   # client certificates last 2 years
 default_crl_days        = 30                    # How often clients should download the CRL
 
