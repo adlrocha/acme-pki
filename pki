@@ -18,14 +18,15 @@ create-ca-certificate(){
 
 create-server-certificate(){
         echo "[] Creating server certificate"
-	mkdir server
-	cp ca/ca.crt server
-	cd server 
+	mkdir $1
+        sed "s/{{client_id}}/$1/g" client.cnf > $1/$1.cnf
+	cp ca/ca.crt $1
+	cd $1 
 	#Generate prime numbers
 	openssl dhparam -out dh2048.pem 2048
 	#Create server request certificate
-	openssl req -new -config ../server.cnf -keyout server.key -out server.req
-	chmod 400 server.key
+	openssl req -new -config $1.cnf -keyout $1.key -out $1.req
+	chmod 400 $1.key
 	cd ..
 }
 
@@ -34,14 +35,14 @@ sign-server-certificate(){
 	#XXX Secure communication of the request from server to CA
 	#(in case we want the key to be generated in the server machine and not by
 	#the CA)
-	cp server/server.req ca/
+	cp $1/$1.req ca/
 	cd ca
 	#We can use --passin passphrase.txt if we don't want to introduce everytime CA's pass
-	openssl ca -config ca-sign.cnf -extensions X509_server -in server.req -out server.crt
+	openssl ca -config ca-sign.cnf -extensions X509_server -in $1.req -out $1.crt
 	cd ..
-	rm ca/server.req
-	rm server/server.req
-	cp ca/server.crt server/
+	rm ca/$1.req
+	rm $1/$1.req
+	cp ca/$1.crt $1/
 	# XXX send the certificates and key to the server
 	echo "[] Encrypting information"
 	#See gpg encryption
@@ -89,14 +90,14 @@ revoke-cert(){
 }
 
 #XXX Pending
-push-crl(){
+#push-crl(){
 	#Send CRL to client and install it
-}
+#}
 
 #XXX Pending
-install-cert(){
+#install-cert(){
 	#Decrypt and copy certificates to directory
-}
+#}
 
 help() {
 echo "-------------------"
@@ -104,9 +105,9 @@ echo "ACME PRIVATE PKI"
 echo "-------------------"
 echo "COMMANDS"
 echo "[] create-ca-certificate"
-echo "[] create-server-certificate"
+echo "[] create-server-certificate [server-id]"
 echo "[] create-client-certificate [client-id]"
-echo "[] sign-server-certificate [server-IP]"
+echo "[] sign-server-certificate [server-id server-IP]"
 echo "[] sign-client-certificate [client-id client-IP]"
 echo "[] revoke-cert [client-id]"
 echo "[] install-cert [directory]"

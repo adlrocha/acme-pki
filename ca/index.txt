@@ -1,3 +1,6 @@
 V	260202163455Z		AE2940CF575B30BA	unknown	/C=SW/L=Stockholm/O=ACME/CN=OpenVPN-ACME-CA
 V	180204170929Z		AE2940CF575B30BB	unknown	/C=SW/L=Stockholm/O=ACME/CN=vm1.acme.sw/emailAddress=hostmaster@acme.sw
 V	180204174108Z		AE2940CF575B30BC	unknown	/C=SW/L=Stockholm/O=ACME/CN=london.acme.sw
+V	180208205649Z		AE2940CF575B30BD	unknown	/C=SW/L=Stockholm/O=ACME/CN=pepe.acme.sw
+V	180212180653Z		AE2940CF575B30BE	unknown	/C=SW/L=Stockholm/O=ACME/CN=mac.acme.sw
+V	180215100424Z		AE2940CF575B30BF	unknown	/C=SW/L=Stockholm/O=ACME/CN=ldap-server.acme.sw

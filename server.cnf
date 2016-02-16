@@ -6,15 +6,15 @@ default_md              = sha256
 encrypt_key             = no
 prompt                  = no
 string_mask             = utf8only
-distinguished_name      = openvpn_server
+distinguished_name      = {{server_id}}
 req_extensions          = req_cert_extensions
 # attributes              = req_attributes
 
-[ openvpn_server ]
+[ {{server_id}} ]
 countryName             = SW
 localityName            = Stockholm
 organizationName        = ACME
-commonName              = vm1.acme.sw
+commonName              = {{server_id}}
 emailAddress            = hostmaster@acme.sw
 
 [ req_cert_extensions ]
