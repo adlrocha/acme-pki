@@ -16,6 +16,17 @@ create-ca-certificate(){
 }
 
 
+sign-server-certificate(){
+        echo "[] Signing server certificate"
+	cp $1/$1.req ca/
+	cd ca
+	openssl ca -batch --passin:acme -config ca-sign.cnf -extensions X509_server -in $1.req -out $1.crt
+	cd ..
+	rm ca/$1.req
+	rm $1/$1.req
+	cp ca/$1.crt $1/
+}
+
 create-server-certificate(){
         echo "[] Creating server certificate"
 	mkdir $1
@@ -28,26 +39,19 @@ create-server-certificate(){
 	openssl req -new -config $1.cnf -keyout $1.key -out $1.req
 	chmod 400 $1.key
 	cd ..
+	sign-server-certificate $1
 }
 
-sign-server-certificate(){
-        echo "[] Signing server certificate"
-	#XXX Secure communication of the request from server to CA
-	#(in case we want the key to be generated in the server machine and not by
-	#the CA)
-	cp $1/$1.req ca/
-	cd ca
-	#We can use --passin passphrase.txt if we don't want to introduce everytime CA's pass
-	openssl ca -config ca-sign.cnf -extensions X509_server -in $1.req -out $1.crt
-	cd ..
-	rm ca/$1.req
-	rm $1/$1.req
-	cp ca/$1.crt $1/
-	# XXX send the certificates and key to the server
-	echo "[] Encrypting information"
-	#See gpg encryption
-        echo "[] Installing certificates in server"
-	# Pending...
+
+sign-client-certificate(){
+        echo "[] Signing client certificate"
+        cp $1/$1.req ca/
+        cd ca/
+        openssl ca -batch -passin pass:acme -config ca-sign.cnf -out $1.crt -in $1.req
+        cd ..
+        rm ca/$1.req
+        rm $1/$1.req
+        cp ca/$1.crt $1/
 }
 
 create-client-certificate(){
@@ -59,45 +63,68 @@ create-client-certificate(){
         openssl req -new -config $1.cnf -keyout $1.key -out $1.req
         chmod 400 $1.key
         cd ..
+	sign-client-certificate $1
 
 }
 
-sign-client-certificate(){
+
+sign-temporal-certificate(){
+        echo "[] Signing temporal certificate"
         cp $1/$1.req ca/
         cd ca/
-	#We can use --passin passphrase.txt if we don't want to introduce everytime CA's pass
-        openssl ca -config ca-sign.cnf -out $1.crt -in $1.req
+        openssl ca -batch -passin pass:acme -config ca-sign-temporal.cnf -out $1.crt -in $1.req
         cd ..
         rm ca/$1.req
         rm $1/$1.req
         cp ca/$1.crt $1/
-	# XXX send the certificates and key to the server
-	echo "[] Encrypting information"
-        echo "[] Installing certificates in server"
-	# Pending...
+	zip $1.zip $1/*
+	rm -r $1
 }
 
-#XXX Pending
-revoke-cert(){
+create-temporal-certificate(){
+        echo "[] Creating temporal certificate"
+	mkdir $1
+	cp ca/ca.crt $1/
+        sed "s/{{client_id}}/$1/g" client.cnf > $1/$1.cnf
+        cd $1
+        openssl req -new -config $1.cnf -keyout $1.key -out $1.req
+        chmod 400 $1.key
+        cd ..
+	sign-temporal-certificate $1
+
+}
+
+
+revoke-certificate(){
         echo "[] Revoking certificate ..."
         cd ca
-        openssl -config ca-sign.cnf -crl_reason keyCompromise -revoke $1
-.crt
-        openssl ca -config ca-sign.cnf -gencrl -out crl.pem
+        openssl ca -passin pass:acme -config ca-sign.cnf -crl_reason keyCompromise -revoke $1.crt
+        openssl ca -passin pass:acme -config ca-sign.cnf -gencrl -out crl.pem
         #Remove revoked certificates from CA folder
-        rm ca/$1.crt ca/$1.req
+        rm ca/$1.crt
         cd ..
+	rm -r $1
 }
 
-#XXX Pending
-#push-crl(){
-	#Send CRL to client and install it
-#}
+generate-crl(){
+	echo "[] Generating CRL"
+	cd ca
+        openssl ca -passin pass:acme -config ca-sign.cnf -gencrl -out crl.pem
+	cd ..
+}
 
-#XXX Pending
-#install-cert(){
-	#Decrypt and copy certificates to directory
-#}
+#This is an admin function. For certificates managed by clients (as temporal ones)
+#the 
+install-certificate(){
+	scp -r $1 $2@$3:$4
+}
+
+new-ca-pass(){
+	cd ca
+	openssl rsa -des3 -in ca.key -out ca_new.key
+	mv ca_new.key ca.key
+	cd ..
+}
 
 help() {
 echo "-------------------"
@@ -107,11 +134,10 @@ echo "COMMANDS"
 echo "[] create-ca-certificate"
 echo "[] create-server-certificate [server-id]"
 echo "[] create-client-certificate [client-id]"
-echo "[] sign-server-certificate [server-id server-IP]"
-echo "[] sign-client-certificate [client-id client-IP]"
-echo "[] revoke-cert [client-id]"
-echo "[] install-cert [directory]"
-echo "[] push-crl" 
+echo "[] create-temporal-certificate [temporal-id]"
+echo "[] revoke-certificate [client/server-id]"
+echo "[] install-certificate [client_id] [valid_user] [device_IP] [directory]"
+echo "[] generate-crl"
 echo "[] new-ca-pass" 
 
 }
