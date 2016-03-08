@@ -4,6 +4,10 @@ do
 	echo "[] Pushing CRL"
 	#Retrieve the servers 
 	source pki
+	echo "[] Updating crl"
+	./pki generate-crl
+	echo "[] Uploading to web server"
+	cp ca/crl.pem /var/crl
 	while read server           
 	do           
 	   date +"%D"
@@ -11,6 +15,8 @@ do
    	   scp ca/crl.pem student-admin@$server:~
 	done <server-list.txt 
 	#Push the CRL every day
+	echo "Removing temporal certificates from yesterday"
+	rm /var/www/temporal_certificate_*
 	echo "Work done. Sleeping for today"
 	sleep 86400
 done

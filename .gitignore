@@ -12,3 +12,6 @@ mac/
 ldap-server/
 vpn-gateway/
 nohup.out
+android1/
+android2/
+ca/ca.key

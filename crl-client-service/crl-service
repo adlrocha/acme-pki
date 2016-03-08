@@ -1,0 +1,8 @@
+#!/bin/bash
+while :
+do
+	echo "[] Pulling CRL"
+	wget vm3.acme.sw/crl/crl.pem
+	echo "Work done. Sleeping for today"
+	sleep 86400
+done

@@ -52,6 +52,7 @@ sign-client-certificate(){
         rm ca/$1.req
         rm $1/$1.req
         cp ca/$1.crt $1/
+	openssl pkcs12 -export -out $1/$1.pfx -passout pass:acme -inkey $1/$1.key -in $1/$1.crt
 }
 
 create-client-certificate(){
@@ -77,6 +78,7 @@ sign-temporal-certificate(){
         rm ca/$1.req
         rm $1/$1.req
         cp ca/$1.crt $1/
+	openssl pkcs12 -export -out $1/$1.pfx -passout pass:acme -inkey $1/$1.key -in $1/$1.crt
 	zip $1.zip $1/*
 	rm -r $1
 }

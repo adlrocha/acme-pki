@@ -6,3 +6,8 @@ V	180215100424Z		AE2940CF575B30BF	unknown	/C=SW/L=Stockholm/O=ACME/CN=ldap-serve
 V	180225160751Z		AE2940CF575B30C0	unknown	/C=SW/L=Stockholm/O=ACME/CN=vpn-gateway.acme.sw
 R	160301121915Z	160229122216Z,keyCompromise	AE2940CF575B30C3	unknown	/C=SW/L=Stockholm/O=ACME/CN=test-temporal.acme.sw
 V	160301122542Z		AE2940CF575B30C4	unknown	/C=SW/L=Stockholm/O=ACME/CN=test-temporal.acme.sw
+V	160308125608Z		AE2940CF575B30C5	unknown	/C=SW/L=Stockholm/O=ACME/CN=temporal_certificate_1457355368.acme.sw
+V	160308163120Z		AE2940CF575B30C6	unknown	/C=SW/L=Stockholm/O=ACME/CN=temporal_certificate_1457368279.acme.sw
+V	180307164442Z		AE2940CF575B30C7	unknown	/C=SW/L=Stockholm/O=ACME/CN=android1.acme.sw
+V	180307165148Z		AE2940CF575B30C8	unknown	/C=SW/L=Stockholm/O=ACME/CN=android2.acme.sw
+V	160308165324Z		AE2940CF575B30C9	unknown	/C=SW/L=Stockholm/O=ACME/CN=temporal_certificate_1457369604.acme.sw
